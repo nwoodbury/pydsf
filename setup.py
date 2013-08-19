@@ -1,11 +1,29 @@
 import os
-from setuptools import setup
+import sys
 
-# Utility function to read the README file.
-# Used for the long_description.  It's nice, because now 1) we have a top level
-# README file and 2) it's easier to type in the README file than to put a raw
-# string in below ...
+from setuptools import setup, Command
+from setuptools.command.test import test as TestCommand
+
+
+class PyTest(TestCommand):
+    """
+    Integrate pytest into setup.py
+    """
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+    def run_tests(self):
+        #import here, cause outside the eggs aren't loaded
+        import pytest
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
+
+
 def read(fname):
+    """
+    Utility function to read the README file.
+    """
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
@@ -19,6 +37,8 @@ setup(
     license = '',
     keywords = 'control systems dynamics',
     url = 'https://github.com/nwoodbury/pydsf',
-    packages=['pydsf', 'tests'],
+    packages=['pydsf'],
     long_description=read('README.md'),
+    tests_require=['pytest'],
+    cmdclass={'test': PyTest}
 )

@@ -17,7 +17,7 @@ def __build_sys(A, B, C, D):
     and returns a ``StateSpace`` instance.
     """
     if A is None or B is None or C is None:
-        raise Exception('Must either pass a sys or (A, B, C)')
+        raise Exception('Must either pass a StateSpace instance or (A, B, C)')
 
     if D is None:
         D = copy.deepcopy(B).fill(0)
