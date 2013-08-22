@@ -4,15 +4,11 @@ import numpy as np
 
 from control.matlab import ss
 from control.statesp import StateSpace
+from control.lti import Lti
 
 
-def dsf(sys=None, A=None, B=None, C=None, D=None):
-    if sys is None:
-        sys = __build_sys(A, B, C, D)
-    elif not isinstance(sys, StateSpace):
-        raise TypeError('sys must be a StateSpace')
-    pass
-
+def dsf(**kwargs):
+    return DynamicalStructureFunction(**kwargs)
 
 def __build_sys(A, B, C, D):
     """
@@ -32,13 +28,44 @@ def __build_sys(A, B, C, D):
     if isinstance(C, list):
         C = np.matrix(C)
 
-    print B
-
     if D is None:
         D = np.zeros_like(B)
     elif isinstance(D, list):
         D = np.matrix(D)
 
-    print D
-
     return ss(A, B, C, D)
+
+
+class DynamicalStructureFunction(Lti):
+
+    def __init__(self, **kwargs):
+
+        print kwargs
+        print kwargs.get('sys', 'not retrieved')
+
+        sys = kwargs.get('sys', None)
+        if sys is None:
+            sys = self.__build_sys(**kwargs)
+        if not isinstance(sys, StateSpace):
+            raise TypeError('System sys must be a StateSpace instance')
+
+    def __build_sys(self, **kwargs):
+        if 'A' not in kwargs:
+            raise ValueError('Must pass either a StateSpace instance or A')
+
+        A = np.matrix(kwargs['A'])
+        if A.shape[0] != A.shape[1]:
+            # TODO Verify that A must be square, or if this can be relaxed
+            raise ValueError('A must be square.')
+        size = A.shape[0]
+
+        B = np.matrix(kwargs.get('B', np.identity(size)))
+        C = np.matrix(kwargs.get('C', np.identity(size)))
+        D = np.matrix(kwargs.get('D', np.zeros((size, size))))
+
+        #print 'A = ', A
+        #print 'B = ', B
+        #print 'C = ', C
+        #print 'D = ', D
+
+        return ss(A, B, C, D)

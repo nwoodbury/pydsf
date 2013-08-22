@@ -11,38 +11,27 @@ class TestDSFParams:
     Test the parameter calls and types into :func:`pydsf.dsf.dsf`.
     """
 
-    def test_no_param(self):
-        """
-        Tests if a ValueError is raised when no parameters are passed.
-        """
-
-        with pytest.raises(ValueError):
-            dsf()
-
     def test_accept_sys(self):
         """
-        Tests if passing a StateSpace object as first parameter or as ``sys``
-        raises no errors.
+        Tests if passing a StateSpace as ``sys`` raises no errors.
         """
 
         [A, B, C, D] = self.__build_standard_abcd()
         sys = ss(A, B, C, D)
-        dsf(sys)
         dsf(sys=sys)
 
     def test_sys_typecheck(self):
         """
-        Tests if passing an invalid type as the first parameter or as ``sys``
-        raises a TypeError.
+        Tests if passing an invalid type as ``sys`` raises a TypeError.
         """
 
         with pytest.raises(TypeError):
             bad_sys = 12
-            dsf(bad_sys)
+            dsf(sys=bad_sys)
 
         with pytest.raises(TypeError):
             bad_sys = True
-            dsf(sys = bad_sys)
+            dsf(sys=bad_sys)
 
     def test_accepts_abc(self):
         """
@@ -76,9 +65,9 @@ class TestDSFParams:
         A, B, C, D = self.__build_matrix_abcd()
         dsf(A=A, B=B, C=C, D=D)
 
-    def test_require_abc(self):
+    def test_require_a(self):
         """
-        Tests if all of (A, B, C) are required.
+        Tests if at least A is required.
         """
         A, B, C, D = self.__build_standard_abcd()
 
@@ -88,12 +77,6 @@ class TestDSFParams:
             dsf(B=B)
         with pytest.raises(ValueError):
             dsf(B=B, C=C)
-        with pytest.raises(ValueError):
-            dsf(A=A)
-        with pytest.raises(ValueError):
-            dsf(A=A, C=C)
-        with pytest.raises(ValueError):
-            dsf(A=A, B=B)
 
     def __build_standard_abcd(self):
         A = [[1, 0], [0, 2]]
